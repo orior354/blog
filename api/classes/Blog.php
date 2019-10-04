@@ -15,7 +15,7 @@ Class Blog {
     }
     
     public function getAllPosts() {
-        $sql = "SELECT * FROM `posts`";
+        $sql = "SELECT * FROM `posts` ORDER BY updated_at DESC";
         try{
             $message = new stdClass();
             $message->status = true;
@@ -59,14 +59,14 @@ Class Blog {
     }
     
     public function updatePost($request) {
-        if( !isset($request['id']) || !isset($request['params']["body"]) ){ 
+        if( !isset($request['id']) || !isset($request["body"]) ){ 
             $this->lastError = "Missing put request parameters: " . json_encode($request);
             return $this->errorMessage();
         }
         
         $message = new stdClass();
         $params = [
-            ":body" => $request['params']["body"],
+            ":body" => $request["body"],
             ":id" => $request['id']
         ];
         $sql = "UPDATE posts SET body = :body, updated_at = NOW() WHERE id = :id";

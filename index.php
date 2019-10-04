@@ -7,14 +7,15 @@
         
         <!-- SCRIPTS -->
         <script src="js/jquery-3.4.1.min.js" type="text/javascript"></script>
+        <script src="js/sweetalert2.js" type="text/javascript"></script>
         <script src="js/index.js" type="text/javascript"></script>
         <!-- SCRIPTS END -->
     </head>
     <body>
         <div class="container">
             <div class="form-container">
-                <textarea></textarea>
-                <button type="submit">Post !</button>
+                <textarea id="post-body"></textarea>
+                <button id="form-submit">Post !</button>
             </div>
             <div class="posts-container">
                 

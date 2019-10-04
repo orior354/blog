@@ -18,12 +18,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
 
     case "PUT":
-        $json = $blog->updatePost($_REQUEST);
+        parse_str(file_get_contents("php://input"), $request);
+        $json = $blog->updatePost($request);
     break;
 
 
     case "DELETE":
-        $json = $blog->deletePost($_REQUEST);
+        parse_str(file_get_contents("php://input"), $request);
+        $json = $blog->deletePost($request);
     break;
 }
 echo json_encode($json);
