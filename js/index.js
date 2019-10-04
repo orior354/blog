@@ -25,7 +25,8 @@ function addPostEvents() {
 
 	$('.updatePost').on('click', function(){
 		let id = $(this).attr('data-id');
-		updatePost(id);
+		let content = $(this).parent().find('.postContent').html();
+		updatePost(id, content);
 	});
 }
 
@@ -51,7 +52,7 @@ function buildPosts(posts) {
 	for (let post of posts) {
 		let postElement = "\
 		<div>\
-		" + post.body + "\
+		<div class='postContent'>" + post.body + "</div>\
 		<button class='removePost' data-id='" + post.id + "'>Remove</button>\
 		<button class='updatePost' data-id='" + post.id + "'>Update</button>\
 		</div>\
@@ -138,12 +139,12 @@ function removePost(id) {
 }
 
 //update post
-function updatePost(id) {
+function updatePost(id, content) {
 	Swal.fire({
 		title: '<h1>Update post</h1>',
 		type: 'info',
 		html:
-			'<textarea id="updateTextarea"></textarea> ',
+			'<textarea id="updateTextarea">'+content+'</textarea> ',
 		showCloseButton: true,
 		showCancelButton: true,
 		preConfirm: function() {
