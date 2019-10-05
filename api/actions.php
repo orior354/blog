@@ -8,24 +8,24 @@ $json = "";
 //RESTFUL API FOR HENDELING THE REQUESTS
 switch ($_SERVER['REQUEST_METHOD']) {
     case "GET":
-        $json = $blog->getAllPosts(); 
+        $json = $blog->getComments($_GET); 
     break;
 
 
     case "POST":
-        $json = $blog->addPost($_POST);
+        $json = $blog->addComment($_POST);
     break;
 
 
     case "PUT":
         parse_str(file_get_contents("php://input"), $request);
-        $json = $blog->updatePost($request);
+        $json = $blog->updateComment($request);
     break;
 
 
     case "DELETE":
         parse_str(file_get_contents("php://input"), $request);
-        $json = $blog->deletePost($request);
+        $json = $blog->deleteComment($request);
     break;
 }
 echo json_encode($json);

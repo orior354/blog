@@ -14,12 +14,16 @@ Class Blog {
         }
     }
     
-    public function getAllPosts() {
-        $sql = "SELECT * FROM `posts` ORDER BY updated_at DESC";
+    public function getComments($get) {
+        $limit = (int)$get['limit'];
+        $offset = (int)$get['offset']; 
+        $sql = "SELECT * FROM `comments` ORDER BY updated_at DESC LIMIT $offset,$limit";
         try{
             $message = new stdClass();
             $message->status = true;
-            $data = $this->con->query($sql)->fetchAll(PDO::FETCH_OBJ);
+            $stms = $this->con->prepare($sql);
+            $stms->execute();
+            $data = $stms->fetchAll(PDO::FETCH_OBJ);
             $message->data = $data;
             return $message;
         }
@@ -29,16 +33,16 @@ Class Blog {
         }
     }
     
-    public function addPost($post) {
+    public function addComment($comment) {
          //incase missing params
-        if( !isset($post['body']) ){ 
+        if( !isset($comment['body']) ){ 
             $this->lastError = "Missing body parameter";
             return $this->errorMessage();
         }
         
         $message = new stdClass();
-        $params = array(':body' => $post['body']);
-        $sql = "INSERT INTO posts 
+        $params = array(':body' => $comment['body']);
+        $sql = "INSERT INTO comments 
                 SET body = :body,
                 created_at = NOW(),
                 updated_at = NOW()
@@ -47,7 +51,7 @@ Class Blog {
             $stms = $this->con->prepare($sql);
             $stms->execute($params);
             $id = $this->con->lastInsertId();
-            $data = $this->getPostByID(['id' => $id]); // fetching new user data
+            $data = $this->getCommentByID(['id' => $id]); // fetching new user data
             $message->status = true;
             $message->data = $data;
             return $message;
@@ -58,7 +62,7 @@ Class Blog {
         }
     }
     
-    public function updatePost($request) {
+    public function updateComment($request) {
         if( !isset($request['id']) || !isset($request["body"]) ){ 
             $this->lastError = "Missing put request parameters: " . json_encode($request);
             return $this->errorMessage();
@@ -69,12 +73,12 @@ Class Blog {
             ":body" => $request["body"],
             ":id" => $request['id']
         ];
-        $sql = "UPDATE posts SET body = :body, updated_at = NOW() WHERE id = :id";
+        $sql = "UPDATE comments SET body = :body, updated_at = NOW() WHERE id = :id";
         
         try{
             $stms = $this->con->prepare($sql);
             $stms->execute($params);
-            $data = $this->getPostByID(['id' => $request['id']]); // fetching new user data
+            $data = $this->getCommentByID(['id' => $request['id']]); // fetching new user data
             $message->status = true;
             $message->data = $data;
             return $message;
@@ -85,7 +89,7 @@ Class Blog {
         }
     }
     
-    public function deletePost($request) {
+    public function deleteComment($request) {
         if( !isset($request['id']) ){ 
             $this->lastError = "Missing id parameter";
             return $this->errorMessage();
@@ -93,9 +97,9 @@ Class Blog {
 
         $message = new stdClass();
         $params = array("id" => $request['id']);
-        $sql = "DELETE FROM posts WHERE id = :id";
+        $sql = "DELETE FROM comments WHERE id = :id";
         try{
-            $data = $this->getPostByID(['id' => $request['id']]); // fetching new user data
+            $data = $this->getCommentByID(['id' => $request['id']]); // fetching new user data
             $stms = $this->con->prepare($sql);
             $stms->execute($params);
             $message->status = true;
@@ -108,7 +112,7 @@ Class Blog {
         }
     }
     
-    private function getPostByID($get) {
+    private function getCommentByID($get) {
         //incase missing params
         if( !isset($get['id']) ){ 
             $this->lastError = "Missing id parameter";
@@ -117,7 +121,7 @@ Class Blog {
         
         $message = new stdClass();
         $params = array(':id' => $get['id']);
-        $sql = "SELECT * FROM `posts` WHERE id = :id";
+        $sql = "SELECT * FROM `comments` WHERE id = :id";
         try{
             $stms = $this->con->prepare($sql);
             $stms->execute($params);

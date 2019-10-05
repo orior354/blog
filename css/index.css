@@ -13,16 +13,22 @@ textarea{
     border-radius: 200px;
     background-color: transparent;
 }
-.btn-section .removePost{
+.btn-section .remove-comment{
     border: 3px solid red;
     color: red;
     font-weight: bold;
+    transition: transform .2s;
 }
 
-.btn-section .updatePost{
+.btn-section .remove-comment:hover, .btn-section .update-comment:hover{
+    transform: scale(1.2);
+}
+
+.btn-section .update-comment{
     border: 3px solid green;
     color: green;
     font-weight: bold;
+    transition: transform .2s;
 }
 
 .date-section{
@@ -33,16 +39,30 @@ textarea{
     font-size: 10px;
     color: gray;
 }
-.post-content{
+.comment-content{
     width: 80%;
 }
-.post-container{
+.comment-container{
     border: 1px solid black;
     position: relative;
-    margin-top: 20px;
+    margin-bottom: 20px;
     border-radius: 4px;
+    background-color: #F3F3F3;
+}
+
+.comments-container {
+    padding-top: 20px;
 }
 
 .hidden{
     opacity: 0;
+}
+
+#form-submit{
+    margin: 10px 0;
+}
+
+.load-more{
+    color: blue;
+    cursor: pointer;
 }

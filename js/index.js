@@ -1,5 +1,6 @@
 //INIT SECTION
 const tinymceToolbar	= "forecolor backcolor | undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent";
+var comments
 //INIT SECTION END
 
 
@@ -7,15 +8,19 @@ const tinymceToolbar	= "forecolor backcolor | undo redo | styleselect | bold ita
 
 
 $(function () {
-	getPosts();
+	getComments();
 
 	tinymce.init({
-		selector: '#post-body',
+		selector: '#comment-body',
 		toolbar: tinymceToolbar
   });
 
 	$('#form-submit').on('click', function () {
 		savePost();
+	});
+
+	$(".load-more").on('click', function(){
+		getComments(10, comments.length, false);
 	});
 });
 
@@ -26,76 +31,84 @@ $(function () {
 // FUNCTIONS SECTION
 
 
-//addin the posts events (cant create them onload)
-function addPostEvents() {
-	$('.removePost').on('click', function () {
+//addin the comments events (cant create them onload)
+function addCommentEvents() {
+	$('.remove-comment').on('click', function () {
 		let id = $(this).attr('data-id');
-		removePost(id);
+		removeComment(id);
 	});
 
-	$('.updatePost').on('click', function(){
+	$('.update-comment').on('click', function(){
 		let id = $(this).attr('data-id');
-		let content = $(this).parent().parent().find('.post-content').html();
-		updatePost(id, content);
+		let content = $(this).parent().parent().find('.comment-content').html();
+		updateComment(id, content);
 	});
 }
 
-//fetch posts from API
-function getPosts() {
+//fetch comments from API
+function getComments(limit = 10, offset = 0, firstLoad = true) {
 	$.ajax({
 		url: "api/actions.php",
 		method: "GET",
-		dataType: 'json'
+		dataType: 'json',
+		data: {limit: limit, offset: offset}
 	}).done(function (response) {
 		if (response.status === true) {
-			console.log('getPosts response: ', response)
-			buildPosts(response.data);
+			console.log('getComments response: ', response);
+			buildComments(response.data);
+			if(firstLoad) comments = response.data;
+			else comments = comments.concat(response.data);
 		}
 		else {
-			console.error("getPosts ajax request return status false: ", response);
+			console.error("getComments ajax request return status false: ", response);
 		}
 	});
 }
 
-//build posts onload async
-function buildPosts(posts) {
-	for (let post of posts) {
-		let postElement = "\
+//build comments onload async
+function buildComments(comments) {
+	if(comments.length == 0){
+		$('.load-more').text('All comments loaded');
+		return
+	}
+	for (let comment of comments) {
+		console.log('comment: ', comment)
+		let commentElement = "\
 		<div class='row'>\
-			<div class='post-container hidden col-md-8 col-sm-12 mx-auto'>\
-				<div class='post-content'>" + post.body + "</div>\
+			<div class='comment-container hidden col-md-8 col-sm-12 mx-auto'>\
+				<div class='comment-content'>" + comment.body + "</div>\
 				<div class='btn-section'>\
-					<button class='updatePost' data-id='" + post.id + "'>U</button>\
-					<button class='removePost' data-id='" + post.id + "'>X</button>\
+					<button class='update-comment' data-id='" + comment.id + "'>U</button>\
+					<button class='remove-comment' data-id='" + comment.id + "'>X</button>\
 				</div>\
 				<div class='date-section'>\
-						<span>Updated at: "+post.updated_at+"</span>\
+						<span>Updated at: "+comment.updated_at+"</span>\
 						<br>\
-					<span>Created at: "+post.created_at+"</span>\
+					<span>Created at: "+comment.created_at+"</span>\
 				</div>\
 			</div>\
 		</div>\
 		";
-		$('.posts-container').append(postElement);
+		$('.comments-container').append(commentElement);
 	}
-	let hiddenPosts = $('.hidden');
-	addPostEvents(); // because the post came as async call
+	let hiddenComments = $('.hidden');
+	addCommentEvents(); // because the comment came as async call
 
-	if(hiddenPosts.length > 0) animateIn(hiddenPosts);
+	if(hiddenComments.length > 0) animateIn(hiddenComments);
 }
 
-//save submited post
+//save submited comment
 function savePost() {
 	tinyMCE.triggerSave();
-	let postBody = $('#post-body').val();
-	let validPost = validatePost(postBody);
+	let commentBody = $('#comment-body').val();
+	let validPost = validatePost(commentBody);
 
 	if (!validPost) {
 		console.warn("Please fill the body befor submitting the form");
 		Swal.fire({
 			type: 'error',
 			title: 'Oops...',
-			text: "Please fill the post body"
+			text: "Please fill the comment body"
 		});
 		return
 	}
@@ -105,16 +118,16 @@ function savePost() {
 		method: "POST",
 		dataType: 'json',
 		data: {
-			body: postBody
+			body: commentBody
 		}
 	}).done(function (response) {
 		if (response.status === true) {
-			console.log('getPosts response: ', response)
-			reloadPosts();
+			console.log('getComments response: ', response)
+			reloadComments();
 			Swal.fire({
 				position: 'center',
 				type: 'success',
-				title: 'Your post has been saved',
+				title: 'Your comment has been saved',
 				showConfirmButton: false,
 				timer: 1500
 			});
@@ -126,8 +139,8 @@ function savePost() {
 	});
 }
 
-//remove post from db
-function removePost(id) {
+//remove comment from db
+function removeComment(id) {
 	Swal.fire({
 		title: 'Are you sure?',
 		text: "You won't be able to revert this!",
@@ -146,10 +159,10 @@ function removePost(id) {
 			})
 			.done(function (response) {
 				if (response.status === true) {
-					reloadPosts();
+					reloadComments();
 					Swal.fire(
 						'Deleted!',
-						'Your Post has been deleted.',
+						'Your Comment has been deleted.',
 						'success'
 					);
 				}
@@ -161,10 +174,10 @@ function removePost(id) {
 	});
 }
 
-//update post
-function updatePost(id, content) {
+//update comment
+function updateComment(id, content) {
 	Swal.fire({
-		title: '<h1>Update post</h1>',
+		title: '<h1>Update comment</h1>',
 		html:
 			'<textarea id="updateTextarea">'+content+'</textarea> ',
 		showCloseButton: true,
@@ -197,7 +210,7 @@ function updatePost(id, content) {
 				data: data
 			}).done(function (response) {
 				if (response.status === true) {
-					reloadPosts();
+					reloadComments();
 					Swal.fire(
 						'Updated!',
 						'Your Post has been updated.',
@@ -212,26 +225,27 @@ function updatePost(id, content) {
 	});
 }
 
-//check if there is a post
-function validatePost(postBody) {
-	if (postBody.length > 0) return true;
+//check if there is a comment
+function validatePost(commentBody) {
+	if (commentBody.length > 0) return true;
 	else return false;
 }
 
-//destroy all posts
-function clearPosts() {
-	$('.posts-container').empty();
+//destroy all comments
+function clearComments() {
+	$('.comments-container').empty();
 }
 
-//async recreating the posts
-function reloadPosts() {
-	clearPosts();
-	getPosts();
+//async recreating the comments
+function reloadComments() {
+	$('.load-more').text('Load More ...');
+	clearComments();
+	getComments();
 }
 
 //display error message
 function errorMessage(response) {
-	console.error("getPosts ajax request return status false: ", response);
+	console.error("getComments ajax request return status false: ", response);
 	Swal.fire({
 		type: 'error',
 		title: 'Oops...',
@@ -239,7 +253,7 @@ function errorMessage(response) {
 	});
 }
 
-//animate the posts enters
+//animate the comments enters
 function animateIn(elements) {
 	$(elements[0]).animate({
 	opacity: 1,
