@@ -35,7 +35,7 @@ function addPostEvents() {
 
 	$('.updatePost').on('click', function(){
 		let id = $(this).attr('data-id');
-		let content = $(this).parent().find('.post-content').html();
+		let content = $(this).parent().parent().find('.post-content').html();
 		updatePost(id, content);
 	});
 }
@@ -67,7 +67,12 @@ function buildPosts(posts) {
 				<div class='btn-section'>\
 					<button class='updatePost' data-id='" + post.id + "'>U</button>\
 					<button class='removePost' data-id='" + post.id + "'>X</button>\
-				<div>\
+				</div>\
+				<div class='date-section'>\
+						<span>Updated at: "+post.updated_at+"</span>\
+						<br>\
+					<span>Created at: "+post.created_at+"</span>\
+				</div>\
 			</div>\
 		</div>\
 		";
@@ -170,6 +175,9 @@ function updatePost(id, content) {
 				toolbar: tinymceToolbar,
 			});
 		},
+		onClose: function() {
+			tinymce.execCommand('mceRemoveEditor',true,"updateTextarea");
+		},
 		preConfirm: function() {
 			tinyMCE.triggerSave();
 			return new Promise((resolve, reject) => {
@@ -237,7 +245,6 @@ function animateIn(elements) {
 	opacity: 1,
 	minHeight: 100
   }, 300, function() {
-	  console.log('fadeIn element: ', elements[1], elements);
     if(elements[1] != undefined) {
 			elements = elements.splice(1, elements.length);
 			animateIn(elements);

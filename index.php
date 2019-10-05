@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <!-- METAS -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- METAS END -->
+
         <!-- LINKS -->
         <link rel="icon" href="img/favicon.ico" type="image/x-icon"/>
         <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">

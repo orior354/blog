@@ -6,6 +6,7 @@ textarea{
     position: absolute;
     right: 0;
     top: 0;
+    margin: 5px;
 }
 
 .btn-section button{
@@ -24,10 +25,22 @@ textarea{
     font-weight: bold;
 }
 
+.date-section{
+    position: absolute;
+    right: 0;
+    top: 100%;
+    transform: translateY(-100%);
+    font-size: 10px;
+    color: gray;
+}
+.post-content{
+    width: 80%;
+}
 .post-container{
     border: 1px solid black;
     position: relative;
     margin-top: 20px;
+    border-radius: 4px;
 }
 
 .hidden{
