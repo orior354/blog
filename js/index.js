@@ -1,8 +1,18 @@
+//INIT SECTION
+const tinymceToolbar	= "forecolor backcolor | undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent";
+//INIT SECTION END
+
+
 // ONLOAD SECTION
 
 
 $(function () {
 	getPosts();
+
+	tinymce.init({
+		selector: '#post-body',
+		toolbar: tinymceToolbar
+  });
 
 	$('#form-submit').on('click', function () {
 		savePost();
@@ -25,7 +35,7 @@ function addPostEvents() {
 
 	$('.updatePost').on('click', function(){
 		let id = $(this).attr('data-id');
-		let content = $(this).parent().find('.postContent').html();
+		let content = $(this).parent().find('.post-content').html();
 		updatePost(id, content);
 	});
 }
@@ -51,19 +61,27 @@ function getPosts() {
 function buildPosts(posts) {
 	for (let post of posts) {
 		let postElement = "\
-		<div>\
-		<div class='postContent'>" + post.body + "</div>\
-		<button class='removePost' data-id='" + post.id + "'>Remove</button>\
-		<button class='updatePost' data-id='" + post.id + "'>Update</button>\
+		<div class='row'>\
+			<div class='post-container hidden col-md-8 col-sm-12 mx-auto'>\
+				<div class='post-content'>" + post.body + "</div>\
+				<div class='btn-section'>\
+					<button class='updatePost' data-id='" + post.id + "'>U</button>\
+					<button class='removePost' data-id='" + post.id + "'>X</button>\
+				<div>\
+			</div>\
 		</div>\
 		";
 		$('.posts-container').append(postElement);
 	}
+	let hiddenPosts = $('.hidden');
 	addPostEvents(); // because the post came as async call
+
+	if(hiddenPosts.length > 0) animateIn(hiddenPosts);
 }
 
 //save submited post
 function savePost() {
+	tinyMCE.triggerSave();
 	let postBody = $('#post-body').val();
 	let validPost = validatePost(postBody);
 
@@ -142,12 +160,18 @@ function removePost(id) {
 function updatePost(id, content) {
 	Swal.fire({
 		title: '<h1>Update post</h1>',
-		type: 'info',
 		html:
 			'<textarea id="updateTextarea">'+content+'</textarea> ',
 		showCloseButton: true,
 		showCancelButton: true,
+		onOpen: function() {
+			tinymce.init({
+				selector: '#updateTextarea',
+				toolbar: tinymceToolbar,
+			});
+		},
 		preConfirm: function() {
+			tinyMCE.triggerSave();
 			return new Promise((resolve, reject) => {
 				resolve({
 						body: $('#updateTextarea').val()
@@ -205,6 +229,20 @@ function errorMessage(response) {
 		title: 'Oops...',
 		text: 'Something went wrong! try again later'
 	});
+}
+
+//animate the posts enters
+function animateIn(elements) {
+	$(elements[0]).animate({
+	opacity: 1,
+	minHeight: 100
+  }, 300, function() {
+	  console.log('fadeIn element: ', elements[1], elements);
+    if(elements[1] != undefined) {
+			elements = elements.splice(1, elements.length);
+			animateIn(elements);
+		}
+  });
 }
 
 // FUNCTIONS SECTION END

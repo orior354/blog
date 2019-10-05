@@ -1,1 +1,35 @@
+textarea{
+    height: 400px;
+}
 
+.btn-section{
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.btn-section button{
+    border-radius: 200px;
+    background-color: transparent;
+}
+.btn-section .removePost{
+    border: 3px solid red;
+    color: red;
+    font-weight: bold;
+}
+
+.btn-section .updatePost{
+    border: 3px solid green;
+    color: green;
+    font-weight: bold;
+}
+
+.post-container{
+    border: 1px solid black;
+    position: relative;
+    margin-top: 20px;
+}
+
+.hidden{
+    opacity: 0;
+}
