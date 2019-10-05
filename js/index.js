@@ -1,5 +1,6 @@
 //INIT SECTION
 const tinymceToolbar	= "forecolor backcolor | undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent";
+const loaderElement = '<center><div class="lds-ring"><div></div><div></div><div></div><div></div></div></center>'
 var comments
 //INIT SECTION END
 
@@ -71,6 +72,7 @@ function buildComments(comments) {
 		$('.load-more').text('All comments loaded');
 		return
 	}
+	$('.comments-container').prepend(loaderElement);
 	for (let comment of comments) {
 		console.log('comment: ', comment)
 		let commentElement = "\
@@ -95,6 +97,7 @@ function buildComments(comments) {
 	addCommentEvents(); // because the comment came as async call
 
 	if(hiddenComments.length > 0) animateIn(hiddenComments);
+	else $('.lds-ring').parent().remove();
 }
 
 //save submited comment
@@ -262,6 +265,9 @@ function animateIn(elements) {
     if(elements[1] != undefined) {
 			elements = elements.splice(1, elements.length);
 			animateIn(elements);
+		}
+		else{
+			$('.lds-ring').parent().remove();
 		}
   });
 }
